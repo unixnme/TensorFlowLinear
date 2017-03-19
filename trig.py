@@ -2,59 +2,52 @@ import tensorflow as tf
 import numpy as np
 from function import *
 
-n_input = 10
-n_output = 5
-
-f = Linear(n_input, n_output)
+n_input = 3
+n_hidden = 100
+f = Trig(n_input)
 
 x = tf.placeholder(tf.float32, (None, n_input))
-y = tf.placeholder(tf.float32, (None, n_output))
+y = tf.placeholder(tf.float32, (None, n_input))
 r = tf.placeholder(tf.float32)
 
 mu = 0
 sigma = 0.1
-learn_rate = 0.01
+learn_rate = 0.001
 
-W = tf.Variable(tf.truncated_normal([n_input, n_output], mu, sigma))
-b = tf.Variable(tf.truncated_normal([n_output], mu, sigma))
+W1 = tf.Variable(tf.truncated_normal([n_input, n_hidden], mu, sigma))
+b1 = tf.Variable(tf.truncated_normal([n_hidden], mu, sigma))
 
-layer1 = tf.matmul(x, W) + b
-loss = tf.reduce_mean((layer1 - y)**2)
+layer1 = tf.matmul(x, W1) + b1
+layer1 = tf.sigmoid(layer1)
+
+W2 = tf.Variable(tf.truncated_normal([n_hidden, n_input], mu, sigma))
+b2 = tf.Variable(tf.truncated_normal([n_input], mu, sigma))
+
+layer2 = tf.matmul(layer1, W2) + b2
+
+loss = tf.reduce_mean((layer2 - y)**2)
 optimizer = tf.train.AdamOptimizer(learning_rate = r)
 training_operation = optimizer.minimize(loss)
 
-EPOCHS = 5000
+EPOCHS = 30000
 BATCH_SIZE = 5
 
 with tf.Session() as session:
     session.run(tf.global_variables_initializer())
     for i in range(EPOCHS):
         X_train = np.random.rand(BATCH_SIZE, n_input)
-        Y_train = f.calc(X_train)
+        Y_train = f.sin(X_train)
         score = session.run(loss, feed_dict={x:X_train, y:Y_train})
         print ("epoch " + str(i+1) + ": " + str(score))
         session.run(training_operation, feed_dict={x:X_train, y:Y_train, r:learn_rate})
 
     X_test = np.random.rand(BATCH_SIZE, n_input)
-    Y_test = f.calc(X_test)
+    Y_test = f.sin(X_test)
+
     print()
     print ("approximated y:")
-    print (session.run(layer1, feed_dict={x:X_test, y:Y_test}))
+    print (session.run(layer2, feed_dict={x:X_test, y:Y_test}))
     print()
     print ("true y:")
     print (Y_test)
     print()
-
-    print ("approximated weight")
-    print(session.run(W))
-    print()
-    print ("true weight")
-    print(f.W)
-    print()
-    print ("approximated bias")
-    print(session.run(b))
-    print()
-    print ("true bias")
-    print(f.b)
-    
-
