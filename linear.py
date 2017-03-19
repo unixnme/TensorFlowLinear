@@ -1,44 +1,6 @@
 import tensorflow as tf
 import numpy as np
-
-class Function(object):
-    """
-    this class contains the unknown function to look for
-    """
-    def __init__(self, n_input, n_output):
-        """
-        defines the input size and output size
-        of the function
-
-        it initializes the function with random weight
-        and bias
-        """
-        self.n_input = n_input
-        self.n_output = n_output
-
-        self.W = np.random.rand(n_input, n_output)
-        self.b = np.random.rand(n_output)
-
-    def calc(self, x):
-        """
-        given np array x of size (m, n_input),
-        returns output y = x*W + b whose size is
-        (m, n_output) where m is the # of batches
-
-        given np.array x of size (n_input),
-        returns output y = W*x + b whose size is
-        (n_output)
-        """
-        if len(x.shape) == 2:
-            assert x.shape[1] == n_input
-            return np.dot(x, self.W) + self.b
-
-        if len(x.shape) == 1:
-            assert x.shape[0] == n_input
-            return np.dot(x.reshape(1, -1), self.W) + self.b
-
-        else:
-            print ("x must be of size (m, n_input) or (n_input)")
+from function import *
 
 n_input = 10
 n_output = 5
@@ -68,13 +30,13 @@ with tf.Session() as session:
     session.run(tf.global_variables_initializer())
     for i in range(EPOCHS):
         X_train = np.random.rand(BATCH_SIZE, n_input)
-        Y_train = f.calc(X_train)
+        Y_train = f.linear(X_train)
         score = session.run(loss, feed_dict={x:X_train, y:Y_train})
         print ("epoch " + str(i+1) + ": " + str(score))
         session.run(training_operation, feed_dict={x:X_train, y:Y_train, r:learn_rate})
 
     X_test = np.random.rand(BATCH_SIZE, n_input)
-    Y_test = f.calc(X_test)
+    Y_test = f.linear(X_test)
     print()
     print ("approximated y:")
     print (session.run(layer1, feed_dict={x:X_test, y:Y_test}))
