@@ -56,7 +56,7 @@ W = tf.Variable(tf.truncated_normal([n_input, n_output], mu, sigma))
 b = tf.Variable(tf.truncated_normal([n_output], mu, sigma))
 
 layer1 = tf.matmul(x, W) + b
-loss = tf.reduce_mean(np.abs(layer1 - y))
+loss = tf.reduce_mean((layer1 - y)**2)
 optimizer = tf.train.AdamOptimizer(learning_rate = learn_rate)
 training_operation = optimizer.minimize(loss)
 
@@ -70,21 +70,28 @@ with tf.Session() as session:
         Y_train = f.calc(X_train)
         session.run(training_operation, feed_dict={x:X_train, y:Y_train})
         score = session.run(loss, feed_dict={x:X_train, y:Y_train})
-        print (score)
+        print ("epoch " + str(i+1) + ": " + str(score))
 
     X_test = np.random.rand(BATCH_SIZE, n_input)
     Y_test = f.calc(X_test)
+    print()
+    print ("approximated y:")
     print (session.run(layer1, feed_dict={x:X_test, y:Y_test}))
     print()
+    print ("true y:")
     print (Y_test)
     print()
 
+    print ("approximated weight")
     print(session.run(W))
     print()
+    print ("true weight")
     print(f.W)
     print()
+    print ("approximated bias")
     print(session.run(b))
     print()
+    print ("true bias")
     print(f.b)
     
 
