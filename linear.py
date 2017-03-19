@@ -47,6 +47,7 @@ f = Function(n_input, n_output)
 
 x = tf.placeholder(tf.float32, (None, n_input))
 y = tf.placeholder(tf.float32, (None, n_output))
+r = tf.placeholder(tf.float32)
 
 mu = 0
 sigma = 0.1
@@ -57,10 +58,10 @@ b = tf.Variable(tf.truncated_normal([n_output], mu, sigma))
 
 layer1 = tf.matmul(x, W) + b
 loss = tf.reduce_mean((layer1 - y)**2)
-optimizer = tf.train.AdamOptimizer(learning_rate = learn_rate)
+optimizer = tf.train.AdamOptimizer(learning_rate = r)
 training_operation = optimizer.minimize(loss)
 
-EPOCHS = 1000
+EPOCHS = 5000
 BATCH_SIZE = 5
 
 with tf.Session() as session:
@@ -68,9 +69,9 @@ with tf.Session() as session:
     for i in range(EPOCHS):
         X_train = np.random.rand(BATCH_SIZE, n_input)
         Y_train = f.calc(X_train)
-        session.run(training_operation, feed_dict={x:X_train, y:Y_train})
         score = session.run(loss, feed_dict={x:X_train, y:Y_train})
         print ("epoch " + str(i+1) + ": " + str(score))
+        session.run(training_operation, feed_dict={x:X_train, y:Y_train, r:learn_rate})
 
     X_test = np.random.rand(BATCH_SIZE, n_input)
     Y_test = f.calc(X_test)
