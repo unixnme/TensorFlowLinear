@@ -30,7 +30,7 @@ optimizer = tf.train.AdamOptimizer(learning_rate = r)
 training_operation = optimizer.minimize(loss)
 
 EPOCHS = 30000
-BATCH_SIZE = 5
+BATCH_SIZE = 10
 
 with tf.Session() as session:
     session.run(tf.global_variables_initializer())
@@ -45,9 +45,6 @@ with tf.Session() as session:
     Y_test = f.sin(X_test)
 
     print()
-    print ("approximated y:")
-    print (session.run(layer2, feed_dict={x:X_test, y:Y_test}))
-    print()
-    print ("true y:")
-    print (Y_test)
+    print ("diff in y:")
+    print (Y_test - session.run(layer2, feed_dict={x:X_test, y:Y_test}))
     print()
